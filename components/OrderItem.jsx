@@ -1,15 +1,19 @@
 'use client'
 import Image from "next/image";
-import { DotIcon } from "lucide-react";
+import { DotIcon, EyeIcon, ArrowRightIcon } from "lucide-react";
 import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
 import Rating from "./Rating";
 import { useState } from "react";
 import RatingModal from "./RatingModal";
+import OrderStatusFlow from "./OrderStatusFlow";
 
 const OrderItem = ({ order }) => {
 
     const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$';
     const [ratingModal, setRatingModal] = useState(null);
+    const [showOrderFlow, setShowOrderFlow] = useState(false);
+    const router = useRouter();
 
     const { ratings } = useSelector(state => state.rating);
 
@@ -52,38 +56,111 @@ const OrderItem = ({ order }) => {
                     <p>{order.address.city}, {order.address.state}, {order.address.zip}, {order.address.country},</p>
                     <p>{order.address.phone}</p>
                 </td>
-
                 <td className="text-left space-y-2 text-sm max-md:hidden">
-                    <div
-                        className={`flex items-center justify-center gap-1 rounded-full p-1 ${order.status === 'confirmed'
-                            ? 'text-yellow-500 bg-yellow-100'
-                            : order.status === 'delivered'
-                                ? 'text-green-500 bg-green-100'
-                                : 'text-slate-500 bg-slate-100'
+                    <div className="space-y-2">
+                        <div
+                            className={`flex items-center justify-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${
+                                order.status === 'ORDER_PLACED'
+                                    ? 'text-blue-600 bg-blue-100'
+                                    : order.status === 'PROCESSING'
+                                        ? 'text-yellow-600 bg-yellow-100'
+                                        : order.status === 'PACKAGED'
+                                            ? 'text-purple-600 bg-purple-100'
+                                            : order.status === 'SHIPPED'
+                                                ? 'text-orange-600 bg-orange-100'
+                                                : order.status === 'OUT_FOR_DELIVERY'
+                                                    ? 'text-yellow-700 bg-yellow-100'
+                                                    : order.status === 'DELIVERED'
+                                                        ? 'text-green-600 bg-green-100'
+                                                        : 'text-slate-500 bg-slate-100'
                             }`}
-                    >
-                        <DotIcon size={10} className="scale-250" />
-                        {order.status.split('_').join(' ').toLowerCase()}
+                        >
+                            <DotIcon size={10} className="scale-250" />
+                            {order.status.split('_').join(' ').toLowerCase()}
+                        </div>
+                        <div className="flex gap-1">
+                            <button
+                                onClick={() => setShowOrderFlow(!showOrderFlow)}
+                                className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                            >
+                                {showOrderFlow ? 'Hide' : 'Track'}
+                            </button>
+                            <span className="text-slate-300">|</span>
+                            <button
+                                onClick={() => router.push(`/orders/${order.id}`)}
+                                className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                            >
+                                <EyeIcon size={12} />
+                                Details
+                            </button>
+                        </div>
                     </div>
                 </td>
             </tr>
             {/* Mobile */}
             <tr className="md:hidden">
                 <td colSpan={5}>
-                    <p>{order.address.name}, {order.address.street}</p>
-                    <p>{order.address.city}, {order.address.state}, {order.address.zip}, {order.address.country}</p>
-                    <p>{order.address.phone}</p>
-                    <br />
-                    <div className="flex items-center">
-                        <span className='text-center mx-auto px-6 py-1.5 rounded bg-green-100 text-green-700' >
-                            {order.status.replace(/_/g, ' ').toLowerCase()}
-                        </span>
+                    <div className="space-y-3">
+                        <div>
+                            <p className="font-medium">{order.address.name}</p>
+                            <p className="text-sm text-slate-600">{order.address.street}</p>
+                            <p className="text-sm text-slate-600">{order.address.city}, {order.address.state}, {order.address.zip}</p>
+                            <p className="text-sm text-slate-600">{order.address.country}</p>
+                            <p className="text-sm text-slate-600">📞 {order.address.phone}</p>
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                order.status === 'ORDER_PLACED'
+                                    ? 'text-blue-600 bg-blue-100'
+                                    : order.status === 'PROCESSING'
+                                        ? 'text-yellow-600 bg-yellow-100'
+                                        : order.status === 'PACKAGED'
+                                            ? 'text-purple-600 bg-purple-100'
+                                            : order.status === 'SHIPPED'
+                                                ? 'text-orange-600 bg-orange-100'
+                                                : order.status === 'OUT_FOR_DELIVERY'
+                                                    ? 'text-yellow-700 bg-yellow-100'
+                                                    : order.status === 'DELIVERED'
+                                                        ? 'text-green-600 bg-green-100'
+                                                        : 'text-slate-500 bg-slate-100'
+                            }`}>
+                                {order.status.replace(/_/g, ' ').toLowerCase()}
+                            </span>
+                            <button
+                                onClick={() => router.push(`/orders/${order.id}`)}
+                                className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                            >
+                                View Details
+                                <ArrowRightIcon size={14} />
+                            </button>
+                        </div>
+                        <button
+                            onClick={() => setShowOrderFlow(!showOrderFlow)}
+                            className="w-full text-center text-blue-600 hover:text-blue-800 text-sm font-medium border border-blue-200 rounded-lg py-2"
+                        >
+                            {showOrderFlow ? 'Hide Order Tracking' : 'Track Order Progress'}
+                        </button>
                     </div>
                 </td>
             </tr>
+            {/* Order Tracking Flow */}
+            {showOrderFlow && (
+                <tr>
+                    <td colSpan={4} className="px-4 py-6 bg-slate-50">
+                        <div className="max-w-4xl mx-auto">
+                            <h4 className="font-medium text-slate-800 mb-4">Order Progress</h4>
+                            <OrderStatusFlow 
+                                currentStatus={order.status} 
+                                orderId={order.id}
+                                showDetails={false}
+                            />
+                        </div>
+                    </td>
+                </tr>
+            )}
             <tr>
                 <td colSpan={4}>
-                    <div className="border-b border-slate-300 w-6/7 mx-auto" />
+                    <div className="border-b border-slate-300 w-full mx-auto" />
                 </td>
             </tr>
         </>

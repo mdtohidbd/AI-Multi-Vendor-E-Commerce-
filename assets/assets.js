@@ -49,14 +49,14 @@ export const dummyStoreData = {
     status: "approved",
     isActive: true,
     logo: happy_store,
-    email: "happyshop@example.com",
-    contact: "+0 1234567890",
+    email: "matohid232020@gmail.com",
+    contact: "01794985731",
     createdAt: "2025-09-04T09:04:16.189Z",
     updatedAt: "2025-09-04T09:04:44.273Z",
     user: {
         id: "user_31dOriXqC4TATvc0brIhlYbwwc5",
         name: "Great Stack",
-        email: "user.greatstack@gmail.com",
+        email: "matohid232020@gmail.com",
         image: gs_logo,
     }
 }
@@ -253,14 +253,14 @@ export const ourSpecsData = [
 export const addressDummyData = {
     id: "addr_1",
     userId: "user_1",
-    name: "John Doe",
-    email: "johndoe@example.com",
+    name: "Tohid",
+    email: "matohid232020@gmail.com",
     street: "123 Main St",
-    city: "New York",
+    city: "Bangladesh",
     state: "NY",
     zip: "10001",
-    country: "USA",
-    phone: "1234567890",
+    country: "BD",
+    phone: "01794985731",
     createdAt: 'Sat Jul 19 2025 14:51:25 GMT+0530 (India Standard Time)',
 }
 
@@ -274,8 +274,8 @@ export const couponDummyData = [
 
 export const dummyUserData = {
     id: "user_31dQbH27HVtovbs13X2cmqefddM",
-    name: "GreatStack",
-    email: "greatstack@example.com",
+    name: "Md Tohidul Islam",
+    email: "matohid262020@gmail.com",
     image: gs_logo,
     cart: {}
 }
@@ -328,15 +328,15 @@ export const storesDummyData = [
     {
         id: "cmemkb98v0001tat8r1hiyxhn",
         userId: "user_31dOriXqC4TATvc0brIhlYbwwc5",
-        name: "GreatStack",
+        name: "Md Tohidul Islam",
         description: "GreatStack is the education marketplace where you can buy goodies related to coding and tech",
-        username: "greatstack",
+        username: "Md Tohidul Islam",
         address: "123 Maplewood Drive Springfield, IL 62704 USA",
         status: "approved",
         isActive: true,
         logo: gs_logo,
-        email: "greatstack@example.com",
-        contact: "+0 1234567890",
+        email: "mdtohid262020@gmail.com",
+        contact: "01794985731",
         createdAt: "2025-08-22T08:22:16.189Z",
         updatedAt: "2025-08-22T08:22:44.273Z",
         user: dummyUserData,
@@ -351,8 +351,8 @@ export const storesDummyData = [
         status: "approved",
         isActive: true,
         logo: happy_store,
-        email: "happyshop@example.com",
-        contact: "+0 123456789",
+        email: "mdtohid262020@gmail.com",
+        contact: "01794985731",
         createdAt: "2025-08-22T08:34:15.155Z",
         updatedAt: "2025-08-22T08:34:47.162Z",
         user: dummyUserData,
