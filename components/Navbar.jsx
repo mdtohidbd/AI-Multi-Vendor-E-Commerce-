@@ -15,8 +15,20 @@ const Navbar = () => {
 
     const [search, setSearch] = useState('')
     const [showContactDropdown, setShowContactDropdown] = useState(false)
+    const [isScrolled, setIsScrolled] = useState(false)
     const contactRef = useRef(null)
     const cartCount = useSelector(state => state.cart.total)
+
+    // Handle scroll effect for sticky navbar
+    useEffect(() => {
+        const handleScroll = () => {
+            const scrollTop = window.scrollY
+            setIsScrolled(scrollTop > 0)
+        }
+        
+        window.addEventListener('scroll', handleScroll)
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -35,9 +47,13 @@ const Navbar = () => {
     }
 
     return (
-        <nav className="relative bg-white">
-            {/* Custom CSS for animations */}
-            <style jsx>{`
+        <>
+            {/* Spacer div to prevent content jump */}
+            {isScrolled && <div className="h-20"></div>}
+            
+            <nav className={`${isScrolled ? 'fixed top-0 left-0 right-0 z-50 shadow-lg' : 'relative'} bg-white transition-all duration-300 ${isScrolled ? 'backdrop-blur-md bg-white/95' : ''}`}>
+                {/* Custom CSS for animations */}
+                <style jsx>{`
                 @keyframes slideDown {
                     0% {
                         opacity: 0;
@@ -46,6 +62,16 @@ const Navbar = () => {
                     100% {
                         opacity: 1;
                         transform: translateY(0);
+                    }
+                }
+                @keyframes slideInFromTop {
+                    0% {
+                        transform: translateY(-100%);
+                        opacity: 0;
+                    }
+                    100% {
+                        transform: translateY(0);
+                        opacity: 1;
                     }
                 }
                 @keyframes pulse-contact {
@@ -63,6 +89,17 @@ const Navbar = () => {
                     50% {
                         transform: translateY(-3px);
                     }
+                }
+                @keyframes glow {
+                    0%, 100% {
+                        box-shadow: 0 0 5px rgba(34, 197, 94, 0.3);
+                    }
+                    50% {
+                        box-shadow: 0 0 20px rgba(34, 197, 94, 0.6), 0 0 30px rgba(34, 197, 94, 0.3);
+                    }
+                }
+                .navbar-sticky {
+                    animation: slideInFromTop 0.3s ease-out;
                 }
                 .contact-dropdown {
                     animation: slideDown 0.3s ease-out;
@@ -91,23 +128,51 @@ const Navbar = () => {
                 .pulse-button {
                     animation: pulse-contact 2s infinite;
                 }
+                .logo-glow:hover {
+                    animation: glow 1s ease-in-out;
+                }
+                .navbar-item {
+                    position: relative;
+                    transition: all 0.3s ease;
+                }
+                .navbar-item::after {
+                    content: '';
+                    position: absolute;
+                    width: 0;
+                    height: 2px;
+                    bottom: -4px;
+                    left: 50%;
+                    background: linear-gradient(90deg, #22c55e, #10b981);
+                    transition: all 0.3s ease;
+                    transform: translateX(-50%);
+                }
+                .navbar-item:hover::after {
+                    width: 100%;
+                }
+                .cart-bounce:hover {
+                    animation: bounce-icon 0.6s ease-in-out;
+                }
+                .search-glow:focus-within {
+                    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+                    background: rgba(34, 197, 94, 0.05);
+                }
             `}</style>
             
             <div className="mx-6">
-                <div className="flex items-center justify-between max-w-7xl mx-auto py-4  transition-all">
+                <div className={`flex items-center justify-between max-w-7xl mx-auto transition-all duration-300 ${isScrolled ? 'py-3' : 'py-4'}`}>
 
-                    <Link href="/" className="relative text-4xl font-semibold text-slate-700 hover:text-green-600 transition-colors duration-300">
-                        <span className="text-green-600">go</span>cart<span className="text-green-600 text-5xl leading-0">.</span>
-                        <p className="absolute text-xs font-semibold -top-1 -right-8 px-3 p-0.5 rounded-full flex items-center gap-2 text-white bg-green-500 hover:bg-green-600 transition-colors">
+                    <Link href="/" className={`logo-glow relative font-semibold text-slate-700 hover:text-green-600 transition-all duration-300 ${isScrolled ? 'text-3xl' : 'text-4xl'}`}>
+                        <span className="text-green-600">go</span>cart<span className={`text-green-600 leading-0 ${isScrolled ? 'text-4xl' : 'text-5xl'}`}>.</span>
+                        <p className={`absolute text-xs font-semibold -top-1 -right-8 px-3 p-0.5 rounded-full flex items-center gap-2 text-white bg-green-500 hover:bg-green-600 transition-all duration-300 ${isScrolled ? 'scale-90' : 'scale-100'}`}>
                             plus
                         </p>
                     </Link>
 
                     {/* Desktop Menu */}
                     <div className="hidden sm:flex items-center gap-4 lg:gap-8 text-slate-600">
-                        <Link href="/" className="hover:text-green-600 transition-colors duration-300">Home</Link>
-                        <Link href="/shop" className="hover:text-green-600 transition-colors duration-300">Shop</Link>
-                        <Link href="/" className="hover:text-green-600 transition-colors duration-300">About</Link>
+                        <Link href="/" className="navbar-item hover:text-green-600 transition-colors duration-300 py-2">Home</Link>
+                        <Link href="/shop" className="navbar-item hover:text-green-600 transition-colors duration-300 py-2">Shop</Link>
+                        <Link href="/" className="navbar-item hover:text-green-600 transition-colors duration-300 py-2">About</Link>
                         
                         {/* Contact Dropdown */}
                         <div className="relative" ref={contactRef}>
@@ -191,29 +256,38 @@ const Navbar = () => {
                             )}
                         </div>
 
-                        <form onSubmit={handleSearch} className="hidden xl:flex items-center w-xs text-sm gap-2 bg-slate-100 px-4 py-3 rounded-full">
+                        <form onSubmit={handleSearch} className={`search-glow hidden xl:flex items-center w-xs text-sm gap-2 bg-slate-100 px-4 rounded-full transition-all duration-300 ${isScrolled ? 'py-2' : 'py-3'}`}>
                             <Search size={18} className="text-slate-600" />
                             <input className="w-full bg-transparent outline-none placeholder-slate-600" type="text" placeholder="Search products" value={search} onChange={(e) => setSearch(e.target.value)} required />
                         </form>
 
-                        <Link href="/cart" className="relative flex items-center gap-2 text-slate-600">
+                        <Link href="/cart" className="cart-bounce relative flex items-center gap-2 text-slate-600 hover:text-green-600 transition-colors duration-300 py-2">
                             <ShoppingCart size={18} />
                             Cart
-                            <button className="absolute -top-1 left-3 text-[8px] text-white bg-slate-600 size-3.5 rounded-full">{cartCount}</button>
+                            {cartCount > 0 && (
+                                <span className="absolute -top-1 left-3 text-[8px] text-white bg-gradient-to-r from-green-500 to-green-600 size-4 rounded-full flex items-center justify-center font-semibold animate-pulse">
+                                    {cartCount}
+                                </span>
+                            )}
                         </Link>
 
 
                         {
                             !user ? (
-                                <button onClick={openSignIn} className="px-8 py-2 bg-indigo-500 hover:bg-indigo-600 transition text-white rounded-full">
-                            Login
-                        </button>
+                                <button 
+                                    onClick={openSignIn} 
+                                    className={`bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 transition-all duration-300 text-white rounded-full transform hover:scale-105 hover:shadow-lg ${isScrolled ? 'px-6 py-1.5 text-sm' : 'px-8 py-2'}`}
+                                >
+                                    Login
+                                </button>
                             ) : (
-                                <UserButton>
-                                    <UserButton.MenuItems>
-                                        <UserButton.Action labelIcon={<PackageIcon size={16}/>} label="My Orders " onClick={()=> router.push('/orders')}/>
-                                    </UserButton.MenuItems>
-                                </UserButton>
+                                <div className="transform hover:scale-110 transition-transform duration-200">
+                                    <UserButton>
+                                        <UserButton.MenuItems>
+                                            <UserButton.Action labelIcon={<PackageIcon size={16}/>} label="My Orders " onClick={()=> router.push('/orders')}/>
+                                        </UserButton.MenuItems>
+                                    </UserButton>
+                                </div>
                             )
                         }
 
@@ -225,35 +299,30 @@ const Navbar = () => {
                     <div className="sm:hidden">
 
                     { user ? (
-                        <div>
-
-                                <UserButton>
-                                    <UserButton.MenuItems>
-                                        <UserButton.Action labelIcon={<ShoppingCart size={16}/>} label="Cart " onClick={()=> router.push('/cart')}/>
-                                    </UserButton.MenuItems>
-                                </UserButton>
-                                 <UserButton>
-                                    <UserButton.MenuItems>
-                                        <UserButton.Action labelIcon={<PackageIcon size={16}/>} label="My Orders " onClick={()=> router.push('/orders')}/>
-                                    </UserButton.MenuItems>
-                                </UserButton>
-
-
+                        <div className="transform hover:scale-110 transition-transform duration-200">
+                            <UserButton>
+                                <UserButton.MenuItems>
+                                    <UserButton.Action labelIcon={<ShoppingCart size={16}/>} label="Cart " onClick={()=> router.push('/cart')}/>
+                                    <UserButton.Action labelIcon={<PackageIcon size={16}/>} label="My Orders " onClick={()=> router.push('/orders')}/>
+                                </UserButton.MenuItems>
+                            </UserButton>
                         </div>
                     ) : (
-
-                        <button onClick={openSignIn}   className="px-7 py-1.5 bg-indigo-500 hover:bg-indigo-600 text-sm transition text-white rounded-full">
+                        <button 
+                            onClick={openSignIn} 
+                            className={`bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-sm transition-all duration-300 text-white rounded-full transform hover:scale-105 hover:shadow-lg ${isScrolled ? 'px-5 py-1' : 'px-7 py-1.5'}`}
+                        >
                             Login
                         </button>
-
                     )
 
                     }                       
                     </div>
                 </div>
             </div>
-            <hr className="border-gray-300" />
-        </nav>
+                {!isScrolled && <hr className="border-gray-300" />}
+            </nav>
+        </>
     )
 }
 
