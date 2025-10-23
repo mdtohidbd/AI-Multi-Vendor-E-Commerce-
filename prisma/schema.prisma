@@ -112,17 +112,20 @@ model Rating {
 
 // Required for creating an Address: userId, name, email, street, city, state, zip, country, phone
 model Address {
-    id        String   @id @default(cuid())
-    userId    String
-    name      String
-    email     String
-    street    String
-    city      String
-    state     String
-    zip       String
-    country   String
-    phone     String
-    createdAt DateTime @default(now())
+    id          String   @id @default(cuid())
+    userId      String
+    name        String
+    email       String
+    street      String
+    city        String
+    state       String
+    zip         String
+    country     String
+    phone       String
+    clientType  String   @default("individual") // individual, business, organization
+    addressType String   @default("home")       // home, office, warehouse, other
+    notes       String?  @default("")
+    createdAt   DateTime @default(now())
 
     // Relations
     Order Order[]

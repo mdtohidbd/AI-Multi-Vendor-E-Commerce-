@@ -1,13 +1,21 @@
 'use client'
-import React from 'react'
+import React, { useMemo } from 'react'
 import Title from './Title'
 import ProductCard from './ProductCard'
 import { useSelector } from 'react-redux'
 
-const LatestProducts = () => {
+const LatestProducts = React.memo(() => {
 
     const displayQuantity = 4
     const products = useSelector(state => state.product.list)
+    
+    // Memoize sorted products to prevent re-sorting on every render
+    const latestProducts = useMemo(() => {
+        return products
+            .slice()
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, displayQuantity);
+    }, [products, displayQuantity]);
 
     return (
         <div className='px-6 my-30 max-w-6xl mx-auto'>
@@ -50,14 +58,14 @@ const LatestProducts = () => {
             </div>
             
             <div className='mt-12 grid grid-cols-2 sm:flex flex-wrap gap-6 justify-between'>
-                {products.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, displayQuantity).map((product, index) => (
-                    <div key={index} className={`stagger-animation stagger-delay-${index + 1}`}>
+                {latestProducts.map((product, index) => (
+                    <div key={product.id || index} className={`stagger-animation stagger-delay-${index + 1}`}>
                         <ProductCard product={product} index={index} />
                     </div>
                 ))}
             </div>
         </div>
     )
-}
+});
 
 export default LatestProducts

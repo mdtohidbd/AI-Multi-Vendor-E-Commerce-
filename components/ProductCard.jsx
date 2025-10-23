@@ -2,16 +2,61 @@
 import { StarIcon, HeartIcon, ShoppingCartIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
+import { useDispatch } from 'react-redux'
+import { addToCart } from '@/lib/features/cart/cartSlice'
+import { toast } from 'react-hot-toast'
 
-const ProductCard = ({ product, index }) => {
+const ProductCard = React.memo(({ product, index }) => {
 
     const [isHovered, setIsHovered] = useState(false)
     const [isLiked, setIsLiked] = useState(false)
+    const [isAddingToCart, setIsAddingToCart] = useState(false)
     const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$'
+    const dispatch = useDispatch()
 
-    // calculate the average rating of the product
-    const rating = Math.round(product.rating.reduce((acc, curr) => acc + curr.rating, 0) / product.rating.length);
+    // calculate the average rating of the product - memoized
+    const rating = useMemo(() => {
+        if (!product.rating || product.rating.length === 0) return 0;
+        return Math.round(product.rating.reduce((acc, curr) => acc + curr.rating, 0) / product.rating.length);
+    }, [product.rating]);
+
+    // Handle add to cart functionality
+    const handleAddToCart = async (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        
+        if (isAddingToCart) return
+        
+        setIsAddingToCart(true)
+        
+        try {
+            dispatch(addToCart({ productId: product.id }))
+            toast.success(`${product.name} added to cart! 🛒`, {
+                duration: 2000,
+                position: 'top-right',
+                style: {
+                    background: '#10B981',
+                    color: '#fff',
+                    borderRadius: '8px',
+                    fontWeight: '500',
+                },
+                icon: '🛒',
+            })
+        } catch (error) {
+            toast.error('Failed to add item to cart', {
+                duration: 2000,
+                position: 'top-right',
+                style: {
+                    background: '#EF4444',
+                    color: '#fff',
+                    borderRadius: '8px',
+                },
+            })
+        } finally {
+            setIsAddingToCart(false)
+        }
+    }
 
     return (
         <div className='max-xl:mx-auto'>
@@ -95,7 +140,11 @@ const ProductCard = ({ product, index }) => {
                         className='max-h-30 sm:max-h-40 w-auto group-hover:scale-110 group-hover:rotate-2 transition-all duration-500 drop-shadow-lg floating' 
                         style={{ animationDelay: `${index * 0.5}s` }}
                         src={product.images[0]} 
-                        alt={product.name} 
+                        alt={product.name}
+                        loading={index < 4 ? 'eager' : 'lazy'}
+                        quality={75}
+                        placeholder="blur"
+                        blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZSIvPjwvc3ZnPg=="
                     />
                     
                     {/* Action buttons overlay */}
@@ -114,10 +163,18 @@ const ProductCard = ({ product, index }) => {
                             <HeartIcon size={16} fill={isLiked ? 'white' : 'transparent'} className='bounce-in' />
                         </button>
                         <button 
-                            onClick={(e) => e.preventDefault()}
-                            className='p-2 rounded-full bg-white/80 text-gray-600 backdrop-blur-sm hover:bg-green-50 hover:text-green-600 hover:scale-110 transition-all duration-300'
+                            onClick={handleAddToCart}
+                            disabled={isAddingToCart}
+                            className={`p-2 rounded-full backdrop-blur-sm transition-all duration-300 hover:scale-110 ${
+                                isAddingToCart 
+                                    ? 'bg-green-500 text-white cursor-not-allowed' 
+                                    : 'bg-white/80 text-gray-600 hover:bg-green-50 hover:text-green-600'
+                            }`}
                         >
-                            <ShoppingCartIcon size={16} />
+                            <ShoppingCartIcon 
+                                size={16} 
+                                className={isAddingToCart ? 'animate-spin' : ''} 
+                            />
                         </button>
                     </div>
                     
@@ -170,6 +227,6 @@ const ProductCard = ({ product, index }) => {
             </Link>
         </div>
     )
-}
+});
 
 export default ProductCard
