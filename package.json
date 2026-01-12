@@ -16,6 +16,7 @@
     "@prisma/adapter-neon": "^6.19.1",
     "@prisma/client": "^6.17.0",
     "@reduxjs/toolkit": "^2.8.2",
+    "axios": "^1.13.2",
     "date-fns": "^4.1.0",
     "fast-check": "^4.3.0",
     "imagekit": "^6.0.0",
