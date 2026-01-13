@@ -12,9 +12,7 @@ export default function LoadingPage() {
         const url = params.get('nextUrl')
 
         if (url) {
-            setTimeout(() => {
-                router.push(url)
-            }, 8000)
+            router.push(url)
         }
     }, [router])
 
